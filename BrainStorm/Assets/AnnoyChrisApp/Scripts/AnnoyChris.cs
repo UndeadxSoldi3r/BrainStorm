@@ -9,8 +9,8 @@ public class AnnoyChris : MonoBehaviour {
     public float currentSanity;
     float Score;
     int State;
-    int Level;
-    int clicks;
+    float Level;
+    float clicks;
     float timer;
     float levelTimer;
     public Sprite happy;
@@ -82,7 +82,7 @@ public class AnnoyChris : MonoBehaviour {
             audioSource.Play();
             animatorController.SetBool("Spinning", true);
             NextButton.SetActive(true);
-            Score += ((levelTimer / timer) / clicks) * Level * 100;
+            Score += ((levelTimer / timer)) * (Level) * 100;
             Score = Mathf.CeilToInt(Score);
             Clicks.text = Score.ToString();
         }
@@ -135,7 +135,7 @@ public class AnnoyChris : MonoBehaviour {
     public void NextLevel()
     {
         Level++;
-        timer += 3;
+        timer += 1;
         clicks = 0;
         levelTimer = timer;
         timing = false;
