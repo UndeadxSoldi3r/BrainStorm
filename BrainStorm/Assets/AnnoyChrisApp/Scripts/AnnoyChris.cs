@@ -7,8 +7,12 @@ public class AnnoyChris : MonoBehaviour {
 
     public float Sanity;
     public float currentSanity;
+    float Score;
     int State;
+    int Level;
     int clicks;
+    float timer;
+    float levelTimer;
     public Sprite happy;
     public Sprite normal;
     public Sprite angry;
@@ -17,18 +21,34 @@ public class AnnoyChris : MonoBehaviour {
     public AudioClip[] sounds;
     private Image sanityImage;
     private Text Clicks;
+    private Text Levels;
     private Animator animatorController;
+    private GameObject NextButton;
+    private GameObject TimerObject;
+    private string lvlText;
+    bool timing;
+
 
 	void Start () {
+        TimerObject = GameObject.Find("Timer");
+        timing = false;
+        timer = 6;
+        levelTimer = timer;
+        Level = 1;
         animatorController = GetComponent<Animator>();
-        Sanity = 10;
+        Sanity = 5;
         currentSanity = Sanity;
         State = 0;
         audioSource = GetComponent<AudioSource>();
         sanityImage = GameObject.Find("Sanity").GetComponent<Image>();
         Clicks = GameObject.Find("Clicks").GetComponent<Text>();
         sanityImage.color = Color.green;
-
+        NextButton = GameObject.Find("Next");
+        Levels = GameObject.Find("Level").GetComponent<Text>();
+        lvlText = "Level: ";
+        string nt = lvlText + Level.ToString();
+        Levels.text = nt;
+        NextButton.SetActive(false);
 	}
 
     void Update()
@@ -57,15 +77,29 @@ public class AnnoyChris : MonoBehaviour {
         {
             State = 3;
             GetComponent<Image>().sprite = fartface;
-            sanityImage.color = Color.gray;
+            sanityImage.color = Color.white;
             audioSource.clip = sounds[3];
             audioSource.Play();
             animatorController.SetBool("Spinning", true);
-            
+            NextButton.SetActive(true);
+            Score += ((levelTimer / timer) / clicks) * Level * 100;
+            Score = Mathf.CeilToInt(Score);
+            Clicks.text = Score.ToString();
         }
 
         if (State != 3)
         {
+            TimerObject.GetComponent<Image>().fillAmount = levelTimer / timer;
+            if (timing)
+            {
+                levelTimer -= Time.deltaTime;
+            }
+            if (levelTimer <= 0)
+            {
+                currentSanity = Sanity;
+                levelTimer = timer;
+                timing = false;
+            }            
             if (percentSanity < 1.0f)
             {
                 currentSanity += 2f * Time.deltaTime;
@@ -84,8 +118,11 @@ public class AnnoyChris : MonoBehaviour {
     public void ClickEvent(){
         if (State != 3)
         {
+            if (timing == false)
+            {
+                timing = true;
+            }
             clicks++;
-            Clicks.text = clicks.ToString();
             currentSanity--;
             if (Random.Range(0, 5) == 0)
             {
@@ -94,4 +131,20 @@ public class AnnoyChris : MonoBehaviour {
             }
         }
     }
+
+    public void NextLevel()
+    {
+        Level++;
+        timer += 3;
+        clicks = 0;
+        levelTimer = timer;
+        timing = false;
+        string nt = lvlText + Level.ToString();
+        animatorController.SetBool("Spinning", false);
+        Levels.text = nt;
+        Sanity += 5;
+        currentSanity = Sanity;
+        NextButton.SetActive(false);
+    }
+
 }
